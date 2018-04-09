@@ -28,7 +28,7 @@
                     <td><%=tarefa.getTitulo()%></td>
                     <td><%=tarefa.getDescricao()%></td>
                     <td><a href="tarefas-editar.html?linha=<%=i%>">Editar</a></td>
-                    <td><a href="excluir.html">Excluir</a></td>
+                    <td><a href="tarefas-excluir.html?linha=<%=i%>">Excluir</a></td>
                 </tr>
                 <%}%>
             </tbody>
