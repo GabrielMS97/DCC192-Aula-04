@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet(name = "ServletTarefas", urlPatterns = {"/listar.html", "/nova.html", "/estado.html"})
+@WebServlet(name = "ServletTarefas", urlPatterns = {"/listar.html", "/nova.html", "/estado.html", "/tarefas-editar.html"})
 public class ServletTarefas extends HttpServlet {
 
     @Override
@@ -21,16 +21,29 @@ public class ServletTarefas extends HttpServlet {
             criarTarefas(request, response);
         } else if ("/estado.html".equals(request.getServletPath())) {
             concluirTarefas(request, response);
+        } else if ("/tarefas-editar.html".equals(request.getServletPath())) {
+            editarTarefas(request, response);
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String titulo = request.getParameter("titulo");
-        String descricao = request.getParameter("descricao");
-        Tarefa novaTarefa = new Tarefa(titulo, descricao);
-        ListaDeTarefas.getInstance().add(novaTarefa);
-        response.sendRedirect("listar.html");
+        //Boolean alteracao = (boolean) request.getAttribute("alteracao");
+
+        if (request.getParameter("alteracao") != null) {
+            int indice = Integer.parseInt(request.getParameter("alteracao"));
+            String titulo = request.getParameter("titulo");
+            String descricao = request.getParameter("descricao");
+            ListaDeTarefas.getInstance().get(indice).setDescricao(descricao);
+            ListaDeTarefas.getInstance().get(indice).setTitulo(titulo);
+            response.sendRedirect("listar.html");
+        } else {
+            String titulo = request.getParameter("titulo");
+            String descricao = request.getParameter("descricao");
+            Tarefa novaTarefa = new Tarefa(titulo, descricao);
+            ListaDeTarefas.getInstance().add(novaTarefa);
+            response.sendRedirect("listar.html");
+        }
     }
 
     private void listarTarefas(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -46,10 +59,18 @@ public class ServletTarefas extends HttpServlet {
         RequestDispatcher despachante = request.getRequestDispatcher("/WEB-INF/tarefas-nome.jsp");
         despachante.forward(request, response);
     }
-    
+
     private void concluirTarefas(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int linha = Integer.parseInt(request.getParameter("linha"));
         ListaDeTarefas.getInstance().get(linha).setConcluida(!ListaDeTarefas.getInstance().get(linha).getConcluida());
         response.sendRedirect("listar.html");
+    }
+
+    private void editarTarefas(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int linha = Integer.parseInt(request.getParameter("linha"));
+        Tarefa tarefa = ListaDeTarefas.getInstance().get(linha);
+        request.setAttribute("tarefa", tarefa);
+        RequestDispatcher despachante = request.getRequestDispatcher("/WEB-INF/tarefas-editar.jsp");
+        despachante.forward(request, response);
     }
 }
